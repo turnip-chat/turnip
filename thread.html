@@ -1,11 +1,23 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
 <title>Turnip - スレッド</title>
 
+
 <style>
+
+/* =========================================
+   全体
+========================================= */
 
 * {
     box-sizing: border-box;
@@ -14,268 +26,780 @@
 html,
 body {
     margin: 0;
+    padding: 0;
+
     width: 100%;
     height: 100%;
-    font-family: Arial, sans-serif;
+
+    font-family:
+        Arial,
+        "Hiragino Kaku Gothic ProN",
+        Meiryo,
+        sans-serif;
+
     background: #f5f6f8;
 }
 
-button {
-    cursor: pointer;
+
+/* =========================================
+   ヘッダー
+========================================= */
+
+#header {
+
+    height: 60px;
+
+    display: flex;
+
+    align-items: center;
+
+    padding: 10px 15px;
+
+    background: white;
+
+    border-bottom:
+        1px solid #ddd;
+
+    gap: 15px;
 }
 
-#topBar {
-    height: 55px;
-    background: white;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    align-items: center;
-    padding: 0 15px;
-    gap: 10px;
-}
 
 #backButton {
-    padding: 8px 14px;
-    border: 1px solid #ccc;
-    border-radius: 7px;
-    background: white;
+
+    padding:
+        8px 14px;
+
+    border:
+        1px solid #ccc;
+
+    border-radius:
+        7px;
+
+    background:
+        white;
+
+    cursor:
+        pointer;
+
+    font-size:
+        14px;
 }
+
 
 #title {
+
     margin: 0;
-    font-size: 20px;
-}
 
-#main {
-    display: flex;
-    height: calc(100vh - 55px);
-}
+    font-size:
+        20px;
 
-#chatArea {
     flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
+
+    overflow:
+        hidden;
+
+    white-space:
+        nowrap;
+
+    text-overflow:
+        ellipsis;
 }
 
-#threadInfo {
-    background: white;
-    border-bottom: 1px solid #ddd;
-    padding: 10px 15px;
-}
 
 #status {
-    color: #666;
-    font-size: 13px;
+
+    color:
+        #555;
+
+    font-size:
+        14px;
 }
 
-#systemSetting {
-    font-size: 13px;
-    margin-top: 5px;
+
+/* =========================================
+   メイン
+========================================= */
+
+#main {
+
+    display:
+        flex;
+
+    height:
+        calc(100vh - 60px);
 }
 
-#chat {
-    flex: 1;
-    overflow-y: auto;
-    padding: 15px;
-    display: flex;
-    flex-direction: column-reverse;
+
+/* =========================================
+   チャット側
+========================================= */
+
+#chatArea {
+
+    flex:
+        3;
+
+    min-width:
+        0;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    padding:
+        10px;
 }
 
-.message {
-    padding: 9px;
-    margin: 5px 0;
-    border-radius: 8px;
-    max-width: 90%;
-    word-break: break-word;
+
+/* =========================================
+   設定
+========================================= */
+
+#settings {
+
+    background:
+        white;
+
+    border:
+        1px solid #ddd;
+
+    border-radius:
+        8px;
+
+    padding:
+        8px 10px;
+
+    margin-bottom:
+        8px;
+
+    font-size:
+        14px;
 }
 
-.myMessage {
-    background: #d0ebff;
-    align-self: flex-end;
-}
 
-.otherMessage {
-    background: #ffffff;
-    align-self: flex-start;
-}
-
-.systemMessage {
-    background: #ffeeba;
-    align-self: center;
-    width: 90%;
-}
-
-.messageHeader {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    font-size: 13px;
-}
-
-.messageName {
-    font-weight: bold;
-}
-
-.messageTime {
-    color: #777;
-    font-size: 11px;
-}
-
-.messageButtons {
-    display: flex;
-    gap: 4px;
-}
-
-.messageButtons button {
-    padding: 3px 7px;
-    font-size: 11px;
-}
-
-.messageBody {
-    margin-top: 5px;
-}
-
-.messageImage {
-    max-width: 300px;
-    max-height: 300px;
-    display: block;
-    margin-top: 6px;
-    border-radius: 6px;
-}
-
-.youtubeFrame {
-    width: 300px;
-    height: 170px;
-    border: none;
-    margin-top: 6px;
-}
+/* =========================================
+   返信ボックス
+========================================= */
 
 #replyBox {
-    display: none;
-    background: #e9ecef;
-    padding: 8px 12px;
-    border-top: 1px solid #ccc;
+
+    display:
+        none;
+
+    background:
+        #eeeeee;
+
+    border:
+        1px solid #ccc;
+
+    border-radius:
+        7px;
+
+    padding:
+        8px;
+
+    margin-bottom:
+        8px;
+
+    position:
+        relative;
 }
+
 
 #replyText {
-    display: inline-block;
-    max-width: calc(100% - 40px);
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+
+    display:
+        block;
+
+    padding-right:
+        35px;
+
+    font-size:
+        13px;
+
+    color:
+        #444;
+
+    white-space:
+        nowrap;
+
+    overflow:
+        hidden;
+
+    text-overflow:
+        ellipsis;
 }
 
-#cancelReply {
-    float: right;
+
+#cancelReplyButton {
+
+    position:
+        absolute;
+
+    right:
+        6px;
+
+    top:
+        5px;
+
+    border:
+        none;
+
+    background:
+        transparent;
+
+    cursor:
+        pointer;
+
+    font-size:
+        18px;
+
+    color:
+        #555;
 }
+
+
+/* =========================================
+   メッセージ入力
+========================================= */
 
 #inputArea {
-    display: flex;
-    gap: 8px;
-    padding: 10px;
-    background: white;
-    border-top: 1px solid #ddd;
+
+    display:
+        flex;
+
+    gap:
+        8px;
+
+    margin-bottom:
+        8px;
 }
+
 
 #msg {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 7px;
-    font-size: 15px;
+
+    flex:
+        1;
+
+    min-width:
+        0;
+
+    padding:
+        10px;
+
+    border:
+        1px solid #ccc;
+
+    border-radius:
+        7px;
+
+    font-size:
+        15px;
 }
+
 
 #sendButton {
-    padding: 10px 18px;
-    border: none;
-    border-radius: 7px;
-    background: #222;
-    color: white;
+
+    padding:
+        10px 18px;
+
+    border:
+        none;
+
+    border-radius:
+        7px;
+
+    background:
+        #222;
+
+    color:
+        white;
+
+    cursor:
+        pointer;
 }
+
+
+/* =========================================
+   チャット
+========================================= */
+
+#chat {
+
+    flex:
+        1;
+
+    overflow-y:
+        auto;
+
+    padding:
+        5px;
+}
+
+
+/* =========================================
+   メッセージ
+========================================= */
+
+.message {
+
+    padding:
+        8px 10px;
+
+    margin:
+        5px 0;
+
+    border-radius:
+        9px;
+
+    word-break:
+        break-word;
+
+    max-width:
+        100%;
+}
+
+
+/* 自分 */
+
+.myMessage {
+
+    background:
+        #cfe9ff;
+}
+
+
+/* 他人 */
+
+.otherMessage {
+
+    background:
+        #eeeeee;
+}
+
+
+/* システム */
+
+.systemMessage {
+
+    background:
+        #ffe8a8;
+}
+
+
+/* =========================================
+   メッセージヘッダー
+========================================= */
+
+.messageHeader {
+
+    display:
+        flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        flex-start;
+
+    gap:
+        10px;
+
+    margin-bottom:
+        5px;
+}
+
+
+.messageInfo {
+
+    min-width:
+        0;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        7px;
+
+    flex-wrap:
+        wrap;
+}
+
+
+.messageName {
+
+    font-weight:
+        bold;
+
+    color:
+        #222;
+
+    word-break:
+        break-word;
+}
+
+
+.messageTime {
+
+    font-size:
+        12px;
+
+    color:
+        #666;
+
+    white-space:
+        nowrap;
+}
+
+
+/* =========================================
+   ボタン
+========================================= */
+
+.messageButtons {
+
+    display:
+        flex;
+
+    gap:
+        5px;
+
+    flex-shrink:
+        0;
+}
+
+
+.messageButtons button {
+
+    padding:
+        5px 9px;
+
+    border:
+        1px solid #aaa;
+
+    border-radius:
+        5px;
+
+    background:
+        white;
+
+    cursor:
+        pointer;
+
+    font-size:
+        13px;
+}
+
+
+.messageButtons button:hover {
+
+    background:
+        #f0f0f0;
+}
+
+
+/* =========================================
+   返信引用
+========================================= */
+
+.replyQuote {
+
+    background:
+        #dddddd;
+
+    border-left:
+        3px solid #888;
+
+    padding:
+        5px 8px;
+
+    margin-bottom:
+        7px;
+
+    font-size:
+        12px;
+
+    color:
+        #555;
+
+    border-radius:
+        4px;
+}
+
+
+/* =========================================
+   メッセージ本文
+========================================= */
+
+.messageBody {
+
+    line-height:
+        1.5;
+
+    white-space:
+        pre-wrap;
+}
+
+
+/* =========================================
+   画像
+========================================= */
+
+.messageImage {
+
+    max-width:
+        100%;
+
+    width:
+        auto;
+
+    max-height:
+        500px;
+
+    display:
+        block;
+
+    margin:
+        5px 0;
+
+    border-radius:
+        6px;
+}
+
+
+/* =========================================
+   YouTube
+========================================= */
+
+.youtubeFrame {
+
+    width:
+        360px;
+
+    max-width:
+        100%;
+
+    height:
+        203px;
+
+    border:
+        none;
+
+    display:
+        block;
+
+    margin-top:
+        5px;
+
+    border-radius:
+        6px;
+}
+
+
+/* =========================================
+   オンライン側
+========================================= */
 
 #onlineArea {
-    width: 240px;
-    background: white;
-    border-left: 1px solid #ddd;
-    padding: 15px;
-    overflow-y: auto;
+
+    flex:
+        1;
+
+    min-width:
+        220px;
+
+    max-width:
+        320px;
+
+    border-left:
+        1px solid #ccc;
+
+    background:
+        white;
+
+    padding:
+        15px;
+
+    overflow-y:
+        auto;
 }
+
 
 #onlineTitle {
-    font-weight: bold;
-    margin-bottom: 10px;
+
+    margin-top:
+        0;
+
+    font-size:
+        17px;
 }
+
 
 .onlineUser {
-    padding: 7px;
-    border-bottom: 1px solid #eee;
-    font-size: 13px;
+
+    padding:
+        8px 5px;
+
+    border-top:
+        1px solid #eee;
+
+    word-break:
+        break-word;
 }
 
-@media (max-width: 700px) {
+
+.onlineUser:first-child {
+
+    border-top:
+        none;
+}
+
+
+/* =========================================
+   スマホ
+========================================= */
+
+@media(max-width:700px) {
+
+    #main {
+
+        flex-direction:
+            column;
+
+        height:
+            calc(100vh - 60px);
+
+    }
+
+
+    #chatArea {
+
+        flex:
+            1;
+
+        min-height:
+            0;
+
+    }
+
 
     #onlineArea {
-        display: none;
+
+        flex:
+            0 0 130px;
+
+        max-width:
+            none;
+
+        width:
+            100%;
+
+        border-left:
+            none;
+
+        border-top:
+            1px solid #ccc;
+
     }
 
-    .messageImage {
-        max-width: 100%;
+
+    #status {
+
+        display:
+            none;
+
     }
 
-    .youtubeFrame {
-        max-width: 100%;
+
+    #title {
+
+        font-size:
+            17px;
+
     }
+
 }
 
 </style>
+
 </head>
+
 
 <body>
 
-<div id="topBar">
 
-    <button id="backButton" onclick="goBack()">
-        ← スレ一覧
+<!-- =========================================
+     ヘッダー
+========================================= -->
+
+<div id="header">
+
+
+    <button
+        id="backButton"
+        onclick="goBack()"
+    >
+        スレ一覧
     </button>
+
 
     <h2 id="title">
         読み込み中...
     </h2>
 
+
+    <div id="status">
+        認証確認中...
+    </div>
+
 </div>
 
 
+<!-- =========================================
+     メイン
+========================================= -->
+
 <div id="main">
+
+
+    <!-- =====================================
+         チャット
+    ====================================== -->
 
     <div id="chatArea">
 
-        <div id="threadInfo">
 
-            <div id="status">
-                ログイン確認中...
-            </div>
+        <!-- システムメッセージ設定 -->
 
-            <label id="systemSetting">
+        <div id="settings">
+
+            <label>
+
                 <input
                     type="checkbox"
                     id="toggleSystemMsg"
                 >
-                システムメッセージ表示
+
+                システムメッセージを表示
+
             </label>
 
         </div>
 
 
-        <div id="chat"></div>
-
+        <!-- 返信中 -->
 
         <div id="replyBox">
 
             <span id="replyText"></span>
 
             <button
-                id="cancelReply"
+                id="cancelReplyButton"
                 onclick="cancelReply()"
             >
                 ×
@@ -283,6 +807,8 @@ button {
 
         </div>
 
+
+        <!-- 入力 -->
 
         <div id="inputArea">
 
@@ -293,6 +819,7 @@ button {
                 autocomplete="off"
             >
 
+
             <button
                 id="sendButton"
                 onclick="send()"
@@ -302,15 +829,30 @@ button {
 
         </div>
 
+
+        <!-- メッセージ一覧 -->
+
+        <div id="chat"></div>
+
     </div>
 
 
+    <!-- =====================================
+         オンライン
+    ====================================== -->
+
     <div id="onlineArea">
 
-        <div id="onlineTitle">
+        <h3 id="onlineTitle">
+
             オンライン
-            (<span id="onlineCount">0</span>人)
-        </div>
+            (
+            <span id="onlineCount">0</span>
+            人
+            )
+
+        </h3>
+
 
         <div id="onlineUsers"></div>
 
@@ -319,324 +861,661 @@ button {
 </div>
 
 
+<!-- =========================================
+     Firebase
+========================================= -->
+
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
 
 <script>
 
 /* =========================================
-   ★ Turnip Firebase設定
-   index.html と完全に同じ
-   ========================================= */
+   Firebase設定
+========================================= */
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDHLzaNUhtOt4Dztz7bTNclO_FY_Mbwb3g",
-    authDomain: "turnip-1abf0.firebaseapp.com",
-    databaseURL: "https://turnip-1abf0-default-rtdb.firebaseio.com",
-    projectId: "turnip-1abf0"
+
+    apiKey:
+        "AIzaSyDHLzaNUhtOt4Dztz7bTNclO_FY_Mbwb3g",
+
+    authDomain:
+        "turnip-1abf0.firebaseapp.com",
+
+    databaseURL:
+        "https://turnip-1abf0-default-rtdb.firebaseio.com",
+
+    projectId:
+        "turnip-1abf0"
+
 };
 
-firebase.initializeApp(firebaseConfig);
 
-const auth = firebase.auth();
-const db = firebase.database();
+firebase.initializeApp(
+    firebaseConfig
+);
 
 
-/* =========================================
-   基本変数
-   ========================================= */
+const auth =
+    firebase.auth();
 
-const params = new URLSearchParams(location.search);
 
-const threadId = params.get("id");
-
-let currentUser = null;
-let currentName = "";
-let fixedID = "";
-let replyTo = null;
-let isAdmin = false;
-let initialized = false;
+const db =
+    firebase.database();
 
 
 /* =========================================
-   スレッドID確認
-   ========================================= */
+   URLからスレッドID取得
+========================================= */
+
+const params =
+    new URLSearchParams(
+        window.location.search
+    );
+
+
+const threadId =
+    params.get("id");
+
+
+/* =========================================
+   変数
+========================================= */
+
+let currentUser =
+    null;
+
+let currentName =
+    "名無し";
+
+let replyTo =
+    null;
+
+let isAdmin =
+    false;
+
+let authChecked =
+    false;
+
+let onlineRef =
+    null;
+
+
+/* =========================================
+   スレッドIDチェック
+========================================= */
 
 if (!threadId) {
 
-    alert("スレッドIDがありません");
+    alert(
+        "スレッドIDがありません。"
+    );
 
-    window.location.replace("threads.html");
+    window.location.replace(
+        "threads.html"
+    );
 
 }
 
 
 /* =========================================
    戻る
-   ========================================= */
+========================================= */
 
 function goBack() {
 
-    window.location.replace("threads.html");
+    window.location.replace(
+        "threads.html"
+    );
 
 }
 
 
 /* =========================================
    システムメッセージ設定
-   ========================================= */
+========================================= */
 
 let showSystemMsg =
-    localStorage.getItem("showSystemMsg") !== "false";
-
-const toggle =
-    document.getElementById("toggleSystemMsg");
-
-toggle.checked = showSystemMsg;
+    localStorage.getItem(
+        "showSystemMsg"
+    ) !== "false";
 
 
-toggle.addEventListener("change", function() {
-
-    showSystemMsg = this.checked;
-
-    localStorage.setItem(
-        "showSystemMsg",
-        showSystemMsg
+const toggleSystemMsg =
+    document.getElementById(
+        "toggleSystemMsg"
     );
 
-    document
-        .querySelectorAll(".systemMessage")
-        .forEach(element => {
 
-            element.style.display =
-                showSystemMsg ? "block" : "none";
+toggleSystemMsg.checked =
+    showSystemMsg;
 
-        });
 
-});
+toggleSystemMsg.addEventListener(
+    "change",
+    function(event) {
+
+        showSystemMsg =
+            event.target.checked;
+
+
+        localStorage.setItem(
+            "showSystemMsg",
+            showSystemMsg
+        );
+
+
+        document
+            .querySelectorAll(
+                ".systemMessage"
+            )
+            .forEach(function(element) {
+
+                element.style.display =
+                    showSystemMsg
+                        ? "block"
+                        : "none";
+
+            });
+
+    }
+);
 
 
 /* =========================================
-   ランダムID
-   ========================================= */
+   YouTube URL
+========================================= */
 
-function generateRandomID(length = 8) {
+function getYouTubeEmbedURL(
+    url
+) {
 
-    const chars =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const reg =
+        /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/i;
 
-    let result = "";
 
-    for (let i = 0; i < length; i++) {
+    const match =
+        url.match(reg);
 
-        result += chars.charAt(
-            Math.floor(Math.random() * chars.length)
-        );
+
+    if (!match) {
+
+        return null;
 
     }
 
-    return result;
+
+    return (
+        "https://www.youtube.com/embed/" +
+        match[1]
+    );
+
 }
 
 
 /* =========================================
-   URL判定
-   ========================================= */
+   画像URL
+========================================= */
 
-function isImageURL(text) {
+function isImageURL(
+    text
+) {
 
-    return /^https?:\/\/.*\.(png|jpg|jpeg|gif|webp)(\?.*)?$/i
+    return /^https?:\/\/.+\.(png|jpg|jpeg|gif|webp)(\?.*)?$/i
         .test(text);
 
 }
 
 
-function getYouTubeEmbedURL(url) {
+/* =========================================
+   メッセージ本文表示
+========================================= */
 
-    let match;
+function renderMessageBody(
+    bodyElement,
+    message
+) {
 
-    match = url.match(
-        /youtube\.com\/watch\?v=([^&]+)/i
+    bodyElement.innerHTML =
+        "";
+
+
+    /*
+     * 空白で分割
+     */
+
+    const parts =
+        String(message || "")
+            .split(/\s+/);
+
+
+    parts.forEach(
+        function(part, index) {
+
+            if (!part) {
+                return;
+            }
+
+
+            /*
+             * 画像
+             */
+
+            if (
+                isImageURL(part)
+            ) {
+
+                const img =
+                    document.createElement(
+                        "img"
+                    );
+
+
+                img.className =
+                    "messageImage";
+
+
+                img.src =
+                    part;
+
+
+                img.alt =
+                    "画像";
+
+
+                img.loading =
+                    "lazy";
+
+
+                bodyElement.appendChild(
+                    img
+                );
+
+
+                return;
+
+            }
+
+
+            /*
+             * YouTube
+             */
+
+            const youtubeURL =
+                getYouTubeEmbedURL(
+                    part
+                );
+
+
+            if (youtubeURL) {
+
+                const iframe =
+                    document.createElement(
+                        "iframe"
+                    );
+
+
+                iframe.className =
+                    "youtubeFrame";
+
+
+                iframe.src =
+                    youtubeURL;
+
+
+                iframe.allowFullscreen =
+                    true;
+
+
+                iframe.setAttribute(
+                    "title",
+                    "YouTube動画"
+                );
+
+
+                bodyElement.appendChild(
+                    iframe
+                );
+
+
+                return;
+
+            }
+
+
+            /*
+             * 通常文字
+             */
+
+            const span =
+                document.createElement(
+                    "span"
+                );
+
+
+            span.textContent =
+                part;
+
+
+            bodyElement.appendChild(
+                span
+            );
+
+
+            /*
+             * 単語間のスペース
+             */
+
+            if (
+                index <
+                parts.length - 1
+            ) {
+
+                bodyElement.appendChild(
+                    document.createTextNode(
+                        " "
+                    )
+                );
+
+            }
+
+        }
     );
-
-    if (match) {
-        return "https://www.youtube.com/embed/" + match[1];
-    }
-
-    match = url.match(
-        /youtu\.be\/([^?&]+)/i
-    );
-
-    if (match) {
-        return "https://www.youtube.com/embed/" + match[1];
-    }
-
-    return null;
 
 }
 
 
 /* =========================================
-   ログイン状態
-   ========================================= */
+   Firebase Auth
+========================================= */
 
-auth.onAuthStateChanged(async function(user) {
-
-    /*
-     * ここで別Firebaseプロジェクトを使わないことが
-     * 今回のページ往復対策の重要ポイント
-     */
-
-    if (!user) {
-
-        currentUser = null;
-
-        window.location.replace("index.html");
-
-        return;
-
-    }
+auth.setPersistence(
+    firebase.auth.Auth.Persistence.LOCAL
+)
+.then(function() {
 
 
-    currentUser = user;
+    auth.onAuthStateChanged(
+        async function(user) {
 
 
-    try {
+            /*
+             * Firebaseの認証状態が確定
+             */
 
-        /* 管理者確認 */
-
-        const adminSnapshot = await db
-            .ref("admins/" + user.uid)
-            .once("value");
-
-        isAdmin = adminSnapshot.exists();
+            authChecked =
+                true;
 
 
-        /* ユーザー情報 */
-
-        const userRef =
-            db.ref("users/" + user.uid);
-
-        const userSnapshot =
-            await userRef.once("value");
-
-        const data =
-            userSnapshot.val() || {};
+            currentUser =
+                user;
 
 
-        currentName =
-            data.displayName ||
-            user.displayName ||
-            user.email ||
-            "名無し";
+            /* -----------------------------
+               未ログイン
+            ----------------------------- */
+
+            if (!user) {
+
+                document.getElementById(
+                    "status"
+                ).textContent =
+                    "ログインしていません";
 
 
-        fixedID =
-            data.fixedID ||
-            generateRandomID(8);
+                /*
+                 * 即座に何度もリダイレクト
+                 * しない
+                 */
+
+                setTimeout(
+                    function() {
+
+                        if (!currentUser) {
+
+                            window.location.replace(
+                                "index.html"
+                            );
+
+                        }
+
+                    },
+                    300
+                );
 
 
-        await userRef.update({
+                return;
 
-            displayName: currentName,
-            fixedID: fixedID
-
-        });
+            }
 
 
-        localStorage.setItem(
-            "displayName",
-            currentName
-        );
+            /* -----------------------------
+               管理者確認
+            ----------------------------- */
+
+            try {
+
+                const adminSnapshot =
+                    await db.ref(
+                        "admins/" +
+                        user.uid
+                    ).once("value");
 
 
-        document.getElementById("status").innerText =
-            currentName + " [" + fixedID + "]";
+                isAdmin =
+                    adminSnapshot.exists();
+
+            }
+
+            catch(error) {
+
+                console.error(
+                    "Admin check error:",
+                    error
+                );
+
+                isAdmin =
+                    false;
+
+            }
 
 
-        /* スレッド存在確認 */
+            /* -----------------------------
+               ユーザー情報
+            ----------------------------- */
 
-        const threadSnapshot =
-            await db.ref(
-                "threads/" + threadId
-            ).once("value");
+            try {
+
+                const userRef =
+                    db.ref(
+                        "users/" +
+                        user.uid
+                    );
 
 
-        if (!threadSnapshot.exists()) {
+                const userSnapshot =
+                    await userRef.once(
+                        "value"
+                    );
 
-            alert("このスレッドは存在しません");
 
-            window.location.replace(
-                "threads.html"
-            );
+                const data =
+                    userSnapshot.val() ||
+                    {};
 
-            return;
+
+                /*
+                 * Firebaseの最新名前を優先
+                 */
+
+                currentName =
+                    data.displayName ||
+                    user.displayName ||
+                    user.email ||
+                    "名無し";
+
+
+                /*
+                 * localStorage更新
+                 */
+
+                localStorage.setItem(
+                    "displayName",
+                    currentName
+                );
+
+
+                /*
+                 * 画面に名前だけ表示
+                 */
+
+                document.getElementById(
+                    "status"
+                ).textContent =
+                    currentName;
+
+
+                /*
+                 * スレッドの存在確認
+                 */
+
+                const threadSnapshot =
+                    await db.ref(
+                        "threads/" +
+                        threadId
+                    ).once("value");
+
+
+                if (
+                    !threadSnapshot.exists()
+                ) {
+
+                    alert(
+                        "このスレッドは存在しません。"
+                    );
+
+
+                    window.location.replace(
+                        "threads.html"
+                    );
+
+
+                    return;
+
+                }
+
+
+                const threadData =
+                    threadSnapshot.val();
+
+
+                /*
+                 * タイトル
+                 */
+
+                document.getElementById(
+                    "title"
+                ).textContent =
+                    threadData.title ||
+                    "無題";
+
+
+                /*
+                 * メンバー確認
+                 */
+
+                const isMember =
+                    threadData.members &&
+                    threadData.members[
+                        user.uid
+                    ] === true;
+
+
+                if (!isMember) {
+
+                    alert(
+                        "このスレッドには参加していません。"
+                    );
+
+
+                    window.location.replace(
+                        "threads.html"
+                    );
+
+
+                    return;
+
+                }
+
+
+                /*
+                 * オンライン登録
+                 */
+
+                setupOnline();
+
+
+                /*
+                 * 入室メッセージ
+                 */
+
+                addJoinSystemMessage();
+
+            }
+
+            catch(error) {
+
+                console.error(
+                    "User load error:",
+                    error
+                );
+
+
+                document.getElementById(
+                    "status"
+                ).textContent =
+                    "読み込みエラー";
+
+            }
 
         }
+    );
 
 
-        const threadData =
-            threadSnapshot.val();
+})
+.catch(function(error) {
+
+    console.error(
+        "Auth persistence error:",
+        error
+    );
 
 
-        document.getElementById("title")
-            .innerText =
-            threadData.title || "無題のスレッド";
-
-
-        /* オンライン登録 */
-
-        setupOnline();
-
-
-        /* 入室メッセージ */
-
-        await db
-            .ref(
-                "threads/" +
-                threadId +
-                "/messages"
-            )
-            .push({
-
-                uid: "system",
-
-                name: "システム",
-
-                message:
-                    currentName +
-                    " が入室しました",
-
-                time:
-                    new Date().toLocaleString("ja-JP")
-
-            });
-
-
-        initialized = true;
-
-
-    } catch (error) {
-
-        console.error(error);
-
-        document.getElementById("status")
-            .innerText =
-            "読み込みエラー: " + error.message;
-
-    }
+    document.getElementById(
+        "status"
+    ).textContent =
+        "認証エラー: " +
+        error.message;
 
 });
 
 
 /* =========================================
-   オンライン
-   ========================================= */
+   オンライン設定
+========================================= */
 
 function setupOnline() {
 
-    const onlineRef =
+    if (!currentUser) {
+        return;
+    }
+
+
+    onlineRef =
         db.ref(
             "threads/" +
             threadId +
@@ -644,27 +1523,112 @@ function setupOnline() {
             currentUser.uid
         );
 
+
     const connectedRef =
-        db.ref(".info/connected");
+        db.ref(
+            ".info/connected"
+        );
 
 
-    connectedRef.on("value", function(snapshot) {
+    connectedRef.on(
+        "value",
+        function(snapshot) {
 
-        if (snapshot.val() !== true) {
-            return;
+            if (
+                snapshot.val() !== true
+            ) {
+
+                return;
+
+            }
+
+
+            /*
+             * 切断時に自動削除
+             */
+
+            onlineRef
+                .onDisconnect()
+                .remove();
+
+
+            /*
+             * 名前だけ保存
+             *
+             * 固定IDは画面に出さない
+             */
+
+            onlineRef.set({
+
+                name:
+                    currentName
+
+            });
+
         }
+    );
+
+}
 
 
-        onlineRef.onDisconnect().remove();
+/* =========================================
+   入室システムメッセージ
+========================================= */
+
+function addJoinSystemMessage() {
+
+    if (!currentUser) {
+        return;
+    }
 
 
-        onlineRef.set({
+    /*
+     * 同じページを更新するたびに
+     * 入室メッセージを大量生成しない
+     */
 
-            name: currentName,
+    const sessionKey =
+        "turnip_join_" +
+        threadId;
 
-            id: fixedID
 
-        });
+    if (
+        sessionStorage.getItem(
+            sessionKey
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    sessionStorage.setItem(
+        sessionKey,
+        "true"
+    );
+
+
+    db.ref(
+        "threads/" +
+        threadId +
+        "/messages"
+    ).push({
+
+        uid:
+            "system",
+
+        name:
+            "システム",
+
+        message:
+            currentName +
+            " が入室しました",
+
+        time:
+            new Date().toLocaleString(
+                "ja-JP"
+            )
 
     });
 
@@ -673,119 +1637,217 @@ function setupOnline() {
 
 /* =========================================
    返信
-   ========================================= */
+========================================= */
 
-function setReply(msg) {
+function setReply(
+    msg
+) {
 
-    replyTo = msg;
+    if (
+        !msg ||
+        msg.uid === "system"
+    ) {
 
-    document.getElementById("replyBox")
-        .style.display = "block";
+        return;
+
+    }
 
 
-    document.getElementById("replyText")
-        .innerText =
-        "↪ " +
-        msg.name +
-        ": " +
-        msg.message;
+    replyTo = {
+
+        name:
+            msg.name ||
+            "名無し",
+
+        message:
+            msg.message ||
+            ""
+
+    };
+
+
+    document.getElementById(
+        "replyBox"
+    ).style.display =
+        "block";
+
+
+    document.getElementById(
+        "replyText"
+    ).textContent =
+        "返信先: " +
+        replyTo.name +
+        " / " +
+        replyTo.message;
+
+
+    document.getElementById(
+        "msg"
+    ).focus();
 
 }
 
 
+/* =========================================
+   返信キャンセル
+========================================= */
+
 function cancelReply() {
 
-    replyTo = null;
+    replyTo =
+        null;
 
-    document.getElementById("replyBox")
-        .style.display = "none";
+
+    document.getElementById(
+        "replyBox"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "replyText"
+    ).textContent =
+        "";
 
 }
 
 
 /* =========================================
    メッセージ送信
-   ========================================= */
+========================================= */
 
-function send() {
+async function send() {
 
     if (!currentUser) {
-        alert("ログインしてください");
+
+        alert(
+            "ログインしてください"
+        );
+
         return;
+
     }
 
 
     const input =
-        document.getElementById("msg");
+        document.getElementById(
+            "msg"
+        );
+
 
     const text =
         input.value.trim();
 
 
     if (!text) {
+
         return;
+
     }
 
 
-    const messageData = {
+    try {
 
-        uid: currentUser.uid,
+        /*
+         * 送信直前にFirebaseから
+         * 最新の名前を取得
+         */
 
-        name:
-            currentName +
-            " [" +
-            fixedID +
-            "]",
-
-        message: text,
-
-        time:
-            new Date().toLocaleString("ja-JP"),
-
-        reply:
-            replyTo
-                ? {
-                    name: replyTo.name,
-                    message: replyTo.message
-                }
-                : null
-
-    };
+        const nameSnapshot =
+            await db.ref(
+                "users/" +
+                currentUser.uid +
+                "/displayName"
+            ).once("value");
 
 
-    db.ref(
-        "threads/" +
-        threadId +
-        "/messages"
-    )
-    .push(messageData)
-    .then(() => {
+        currentName =
+            nameSnapshot.val() ||
+            currentName ||
+            currentUser.displayName ||
+            currentUser.email ||
+            "名無し";
 
-        input.value = "";
+
+        localStorage.setItem(
+            "displayName",
+            currentName
+        );
+
+
+        const messageData = {
+
+            uid:
+                currentUser.uid,
+
+            name:
+                currentName,
+
+            message:
+                text,
+
+            time:
+                new Date().toLocaleString(
+                    "ja-JP"
+                ),
+
+            reply:
+                replyTo
+                    ? {
+                        name:
+                            replyTo.name,
+
+                        message:
+                            replyTo.message
+                    }
+                    : null
+
+        };
+
+
+        await db.ref(
+            "threads/" +
+            threadId +
+            "/messages"
+        ).push(
+            messageData
+        );
+
+
+        input.value =
+            "";
+
 
         cancelReply();
 
-    })
-    .catch(error => {
+    }
 
-        console.error(error);
+    catch(error) {
+
+        console.error(
+            error
+        );
+
 
         alert(
-            "送信に失敗しました: " +
+            "送信失敗:\n" +
             error.message
         );
 
-    });
+    }
 
 }
 
 
 /* =========================================
-   Enterで送信
-   ========================================= */
+   Enterキーで送信
+========================================= */
 
-document.getElementById("msg")
-    .addEventListener("keydown", function(event) {
+document.getElementById(
+    "msg"
+).addEventListener(
+    "keydown",
+    function(event) {
 
         if (
             event.key === "Enter" &&
@@ -798,415 +1860,507 @@ document.getElementById("msg")
 
         }
 
-    });
+    }
+);
 
 
 /* =========================================
    メッセージ表示
-   ========================================= */
+========================================= */
 
 db.ref(
     "threads/" +
     threadId +
     "/messages"
-)
-.on("child_added", function(snapshot) {
+).on(
+    "child_added",
+    function(snapshot) {
 
-    const msg =
-        snapshot.val();
+        const msg =
+            snapshot.val();
 
-    const key =
-        snapshot.key;
 
+        const key =
+            snapshot.key;
 
-    const div =
-        document.createElement("div");
 
-    div.className = "message";
-
-
-    /* 自分 */
-
-    if (
-        currentUser &&
-        msg.uid === currentUser.uid
-    ) {
-
-        div.classList.add("myMessage");
-
-    }
-
-    /* システム */
-
-    else if (msg.uid === "system") {
-
-        div.classList.add("systemMessage");
-
-        if (!showSystemMsg) {
-
-            div.style.display = "none";
-
-        }
-
-    }
-
-    /* 他人 */
-
-    else {
-
-        div.classList.add("otherMessage");
-
-    }
-
-
-    /* ヘッダー */
-
-    const header =
-        document.createElement("div");
-
-    header.className =
-        "messageHeader";
-
-
-    const info =
-        document.createElement("div");
-
-
-    const name =
-        document.createElement("span");
-
-    name.className =
-        "messageName";
-
-    name.innerText =
-        msg.name || "名無し";
-
-
-    const time =
-        document.createElement("span");
-
-    time.className =
-        "messageTime";
-
-    time.innerText =
-        " [" +
-        (msg.time || "") +
-        "]";
-
-
-    info.appendChild(name);
-
-    info.appendChild(time);
-
-
-    header.appendChild(info);
-
-
-    /* ボタン */
-
-    const btnArea =
-        document.createElement("div");
-
-    btnArea.className =
-        "messageButtons";
-
-
-    /* 返信 */
-
-    if (msg.uid !== "system") {
-
-        const replyButton =
-            document.createElement("button");
-
-        replyButton.innerText =
-            "返信";
-
-        replyButton.onclick =
-            function() {
-
-                setReply(msg);
-
-            };
-
-
-        btnArea.appendChild(
-            replyButton
-        );
-
-    }
-
-
-    /* 削除 */
-
-    if (
-        msg.uid !== "system" &&
-        currentUser &&
-        (
-            msg.uid === currentUser.uid ||
-            isAdmin
-        )
-    ) {
-
-        const deleteButton =
-            document.createElement("button");
-
-        deleteButton.innerText =
-            "削除";
-
-
-        deleteButton.onclick =
-            function() {
-
-                if (
-                    !confirm(
-                        "このメッセージを削除しますか？"
-                    )
-                ) {
-
-                    return;
-
-                }
-
-
-                db.ref(
-                    "threads/" +
-                    threadId +
-                    "/messages/" +
-                    key
-                )
-                .remove();
-
-            };
-
-
-        btnArea.appendChild(
-            deleteButton
-        );
-
-    }
-
-
-    header.appendChild(
-        btnArea
-    );
-
-
-    /* 本文 */
-
-    const body =
-        document.createElement("div");
-
-    body.className =
-        "messageBody";
-
-
-    /* 返信表示 */
-
-    if (msg.reply) {
-
-        const reply =
-            document.createElement("div");
-
-        reply.style.background =
-            "#ddd";
-
-        reply.style.padding =
-            "5px";
-
-        reply.style.marginBottom =
-            "5px";
-
-        reply.style.fontSize =
-            "12px";
-
-        reply.innerText =
-            "↪ " +
-            msg.reply.name +
-            ": " +
-            msg.reply.message;
-
-
-        body.appendChild(reply);
-
-    }
-
-
-    /* 本文を安全に表示 */
-
-    const parts =
-        String(msg.message || "")
-            .split(/\s+/);
-
-
-    parts.forEach(function(part) {
-
-        if (!part) {
+        if (!msg) {
             return;
         }
 
 
-        /* 画像 */
-
-        if (isImageURL(part)) {
-
-            const img =
-                document.createElement("img");
-
-            img.src = part;
-
-            img.className =
-                "messageImage";
-
-            img.alt = "画像";
+        const div =
+            document.createElement(
+                "div"
+            );
 
 
-            body.appendChild(img);
+        div.className =
+            "message";
+
+
+        /*
+         * 自分・他人・システム
+         */
+
+        if (
+            msg.uid ===
+            currentUser?.uid
+        ) {
+
+            div.classList.add(
+                "myMessage"
+            );
 
         }
 
+        else if (
+            msg.uid ===
+            "system"
+        ) {
 
-        /* YouTube */
+            div.classList.add(
+                "systemMessage"
+            );
+
+
+            if (!showSystemMsg) {
+
+                div.style.display =
+                    "none";
+
+            }
+
+        }
 
         else {
 
-            const youtubeURL =
-                getYouTubeEmbedURL(part);
-
-
-            if (youtubeURL) {
-
-                const iframe =
-                    document.createElement("iframe");
-
-                iframe.src =
-                    youtubeURL;
-
-                iframe.className =
-                    "youtubeFrame";
-
-                iframe.allowFullscreen =
-                    true;
-
-
-                body.appendChild(
-                    iframe
-                );
-
-            }
-
-
-            else {
-
-                const span =
-                    document.createElement("span");
-
-                span.innerText =
-                    part + " ";
-
-
-                body.appendChild(
-                    span
-                );
-
-            }
+            div.classList.add(
+                "otherMessage"
+            );
 
         }
 
-    });
+
+        /* =================================
+           ヘッダー
+        ================================= */
+
+        const header =
+            document.createElement(
+                "div"
+            );
 
 
-    div.appendChild(header);
+        header.className =
+            "messageHeader";
 
-    div.appendChild(body);
+
+        const info =
+            document.createElement(
+                "div"
+            );
 
 
-    /*
-     * 削除されたら画面からも消す
-     */
+        info.className =
+            "messageInfo";
 
-    db.ref(
-        "threads/" +
-        threadId +
-        "/messages/" +
-        key
-    )
-    .on("value", function(snap) {
 
-        if (!snap.exists()) {
+        /*
+         * 名前
+         *
+         * innerHTMLを使わない
+         */
 
-            div.remove();
+        const nameElement =
+            document.createElement(
+                "span"
+            );
+
+
+        nameElement.className =
+            "messageName";
+
+
+        nameElement.textContent =
+            msg.name ||
+            "名無し";
+
+
+        info.appendChild(
+            nameElement
+        );
+
+
+        /*
+         * 時刻
+         */
+
+        const timeElement =
+            document.createElement(
+                "span"
+            );
+
+
+        timeElement.className =
+            "messageTime";
+
+
+        timeElement.textContent =
+            "[" +
+            (
+                msg.time ||
+                ""
+            ) +
+            "]";
+
+
+        info.appendChild(
+            timeElement
+        );
+
+
+        header.appendChild(
+            info
+        );
+
+
+        /* =================================
+           ボタン
+        ================================= */
+
+        const btnArea =
+            document.createElement(
+                "div"
+            );
+
+
+        btnArea.className =
+            "messageButtons";
+
+
+        /*
+         * システムには返信ボタンを出さない
+         */
+
+        if (
+            msg.uid !==
+            "system"
+        ) {
+
+            const replyButton =
+                document.createElement(
+                    "button"
+                );
+
+
+            replyButton.textContent =
+                "返信";
+
+
+            replyButton.onclick =
+                function() {
+
+                    setReply(
+                        msg
+                    );
+
+                };
+
+
+            btnArea.appendChild(
+                replyButton
+            );
 
         }
 
-    });
+
+        /*
+         * 自分のメッセージ
+         * または管理者なら削除
+         */
+
+        if (
+            msg.uid ===
+            currentUser?.uid ||
+            isAdmin
+        ) {
+
+            const deleteButton =
+                document.createElement(
+                    "button"
+                );
 
 
-    document
-        .getElementById("chat")
-        .prepend(div);
+            deleteButton.textContent =
+                "削除";
 
-});
+
+            deleteButton.onclick =
+                async function() {
+
+                    if (
+                        !confirm(
+                            "このメッセージを削除しますか？"
+                        )
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    try {
+
+                        await db.ref(
+                            "threads/" +
+                            threadId +
+                            "/messages/" +
+                            key
+                        ).remove();
+
+                    }
+
+                    catch(error) {
+
+                        console.error(
+                            error
+                        );
+
+
+                        alert(
+                            "削除失敗:\n" +
+                            error.message
+                        );
+
+                    }
+
+                };
+
+
+            btnArea.appendChild(
+                deleteButton
+            );
+
+        }
+
+
+        if (
+            btnArea.children.length > 0
+        ) {
+
+            header.appendChild(
+                btnArea
+            );
+
+        }
+
+
+        div.appendChild(
+            header
+        );
+
+
+        /* =================================
+           本文
+        ================================= */
+
+        const body =
+            document.createElement(
+                "div"
+            );
+
+
+        body.className =
+            "messageBody";
+
+
+        /*
+         * 返信引用
+         */
+
+        if (
+            msg.reply
+        ) {
+
+            const quote =
+                document.createElement(
+                    "div"
+                );
+
+
+            quote.className =
+                "replyQuote";
+
+
+            quote.textContent =
+                msg.reply.name +
+                ": " +
+                msg.reply.message;
+
+
+            body.appendChild(
+                quote
+            );
+
+        }
+
+
+        /*
+         * 本文
+         */
+
+        renderMessageBody(
+            body,
+            msg.message
+        );
+
+
+        div.appendChild(
+            body
+        );
+
+
+        /*
+         * チャットに追加
+         */
+
+        document.getElementById(
+            "chat"
+        ).prepend(
+            div
+        );
+
+
+        /*
+         * 削除されたら画面から消す
+         */
+
+        db.ref(
+            "threads/" +
+            threadId +
+            "/messages/" +
+            key
+        ).on(
+            "value",
+            function(currentSnapshot) {
+
+                if (
+                    !currentSnapshot.exists()
+                ) {
+
+                    div.remove();
+
+                }
+
+            }
+        );
+
+    }
+);
 
 
 /* =========================================
    オンラインユーザー表示
-   ========================================= */
-
-const onlineDiv =
-    document.getElementById("onlineUsers");
-
-const onlineCount =
-    document.getElementById("onlineCount");
-
+========================================= */
 
 db.ref(
     "threads/" +
     threadId +
     "/online"
-)
-.on("value", function(snapshot) {
+).on(
+    "value",
+    function(snapshot) {
 
-    onlineDiv.innerHTML = "";
-
-    let count = 0;
-
-
-    snapshot.forEach(function(child) {
-
-        const user =
-            child.val();
-
-        count++;
+        const onlineDiv =
+            document.getElementById(
+                "onlineUsers"
+            );
 
 
-        const div =
-            document.createElement("div");
-
-        div.className =
-            "onlineUser";
-
-        div.innerText =
-            (user.name || "名無し") +
-            " [" +
-            (user.id || "") +
-            "]";
+        const onlineCount =
+            document.getElementById(
+                "onlineCount"
+            );
 
 
-        onlineDiv.appendChild(div);
+        onlineDiv.innerHTML =
+            "";
 
-    });
+
+        let count =
+            0;
 
 
-    onlineCount.innerText =
-        count;
+        snapshot.forEach(
+            function(child) {
 
-});
+                const user =
+                    child.val();
+
+
+                if (!user) {
+                    return;
+                }
+
+
+                count++;
+
+
+                const div =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                div.className =
+                    "onlineUser";
+
+
+                /*
+                 * 名前だけ表示
+                 * 固定IDは表示しない
+                 */
+
+                div.textContent =
+                    user.name ||
+                    "名無し";
+
+
+                onlineDiv.appendChild(
+                    div
+                );
+
+            }
+        );
+
+
+        onlineCount.textContent =
+            count;
+
+    }
+);
+
+
+/* =========================================
+   ページを閉じる・移動する前
+   ========================================= */
+
+window.addEventListener(
+    "beforeunload",
+    function() {
+
+        /*
+         * FirebaseのonDisconnectが
+         * オンライン情報を削除するため、
+         * ここでは直接removeしない
+         */
+
+    }
+);
 
 </script>
 
 </body>
-</html>
-</script>
 
-</body>
 </html>
