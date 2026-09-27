@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>ログイン</title>
+</head>
+<body>
+
+<h2>Googleログイン</h2>
+
+<button onclick="googleLogin()">Googleでログイン</button>
+
+<br><br>
+
+<div id="nameBox" style="display:none;">
+  <h3>名前設定</h3>
+  <input id="nameInput" placeholder="表示名を入力">
+  <button onclick="saveName()">決定</button>
+</div>
+
+<p id="status"></p>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDHLzaNUhtOt4Dztz7bTNclO_FY_Mbwb3g",
+  authDomain: "turnip-1abf0.firebaseapp.com",
+  databaseURL: "https://turnip-1abf0-default-rtdb.firebaseio.com",
+  projectId: "turnip-1abf0",
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+let currentUser = null;
+
+// Googleログイン
+function googleLogin() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider).catch(e => alert(e.message));
+}
+
+// 名前保存
+function saveName() {
+  const name = document.getElementById("nameInput").value;
+  if (!name) return alert("名前を入力してください");
+
+  db.ref("users/" + currentUser.uid).update({
+    displayName: name
+  });
+
+  localStorage.setItem("displayName", name);
+
+  window.location.href = "threads.html";
+}
+
+// 状態監視
+auth.onAuthStateChanged(user => {
+  if (user) {
+    currentUser = user;
+
+    db.ref("users/" + user.uid + "/displayName").once("value", snapshot => {
+      const name = snapshot.val();
+
+      if (name) {
+        localStorage.setItem("displayName", name);
+        window.location.href = "threads.html";
+      } else {
+        document.getElementById("nameBox").style.display = "block";
+        document.getElementById("status").innerText = "名前を設定してください";
+      }
+    });
+
+  } else {
+    document.getElementById("status").innerText = "未ログイン";
+  }
+});
+</script>
+
+</body>
+</html>
