@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>スレッド</title>
+</head>
+<body>
+
+<!-- 🔙 戻るボタン（固定表示） -->
+<button onclick="goBack()" style="
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 1000;
+">
+← スレ一覧
+</button>
+
+<div style="display:flex; height:100vh;">
+
+  <!-- 左 -->
+  <div style="flex:3; padding:10px;">
+
+    <h2 id="title"></h2>
+    <p id="status"></p>
+
+    <label>
+      <input type="checkbox" id="toggleSystemMsg">
+      システムメッセージ表示
+    </label>
+
+    <div id="replyBox" style="display:none; background:#eee; padding:5px;">
+      <span id="replyText"></span>
+      <button onclick="cancelReply()">×</button>
+    </div>
+
+    <input id="msg">
+    <button onclick="send()">送信</button>
+
+    <div id="chat"></div>
+  </div>
+
+  <!-- 右 -->
+  <div style="flex:1; border-left:1px solid #ccc; padding:10px;">
+    <h3>オンライン (<span id="onlineCount">0</span>人)</h3>
+    <div id="onlineUsers"></div>
+  </div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDGNWiE3Q96vKK4tMRWo3tvHAEqXOZOyLM",
+  authDomain: "aumkyou.firebaseapp.com",
+  databaseURL: "https://aumkyou-default-rtdb.firebaseio.com",
+  projectId: "aumkyou"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const auth = firebase.auth();
+
+const params = new URLSearchParams(location.search);
+const threadId = params.get("id");
+
+let currentUser = null;
+let fixedID = null;
+let replyTo = null;
+let isAdmin = false;
+
+// ===== 戻る =====
+function goBack() {
+  location.href = "threads.html";
+}
+
+// ===== システム表示 =====
+let showSystemMsg = localStorage.getItem("showSystemMsg") !== "false";
+document.getElementById("toggleSystemMsg").checked = showSystemMsg;
+
+document.getElementById("toggleSystemMsg").addEventListener("change", e => {
+  showSystemMsg = e.target.checked;
+  localStorage.setItem("showSystemMsg", showSystemMsg);
+
+  document.querySelectorAll(".systemMsg").forEach(el => {
+    el.style.display = showSystemMsg ? "block" : "none";
+  });
+});
+
+// ===== ユーティリティ =====
+function isImageURL(text) {
+  return /(https?:\/\/.*\.(png|jpg|jpeg|gif|webp))/i.test(text);
+}
+
+function getYouTubeEmbedURL(url) {
+  const reg = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/;
+  const match = url.match(reg);
+  return match ? "https://www.youtube.com/embed/" + match[1] : null;
+}
+
+function generateRandomID(length = 8) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let id = '';
+  for (let i = 0; i < length; i++) {
+    id += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return id;
+}
+
+// ===== ログイン =====
+auth.onAuthStateChanged(user => {
+  if (!user) location.href = "index.html";
+
+  currentUser = user;
+
+  db.ref("admins/" + user.uid).once("value").then(snap => {
+    isAdmin = snap.exists();
+  });
+
+  const userRef = db.ref("users/" + user.uid);
+
+  userRef.once("value").then(snap => {
+    const data = snap.val() || {};
+
+    const name = data.displayName || user.email;
+    localStorage.setItem("displayName", name);
+
+    fixedID = data.fixedID || generateRandomID(8);
+
+    userRef.update({ displayName: name, fixedID: fixedID });
+
+    document.getElementById("status").innerText =
+      `${name} [${fixedID}]`;
+
+    // 入室メッセージ
+    db.ref("threads/" + threadId + "/messages").push({
+      uid: "system",
+      name: "システム",
+      message: `${name} が入室しました`,
+      time: new Date().toLocaleString()
+    });
+
+    // オンライン
+    const onlineRef = db.ref("threads/" + threadId + "/online/" + user.uid);
+    const connectedRef = db.ref(".info/connected");
+
+    connectedRef.on("value", snap => {
+      if (snap.val() === true) {
+        onlineRef.onDisconnect().remove();
+        onlineRef.set({ name: name, id: fixedID });
+      }
+    });
+  });
+});
+
+// ===== タイトル =====
+db.ref("threads/" + threadId).once("value", snap => {
+  document.getElementById("title").innerText = snap.val().title;
+});
+
+// ===== 返信 =====
+function setReply(msg) {
+  replyTo = msg;
+  document.getElementById("replyBox").style.display = "block";
+  document.getElementById("replyText").innerText =
+    `${msg.name}: ${msg.message}`;
+}
+function cancelReply() {
+  replyTo = null;
+  document.getElementById("replyBox").style.display = "none";
+}
+
+// ===== 送信 =====
+function send() {
+  const text = document.getElementById("msg").value;
+  if (!text) return;
+
+  const name = localStorage.getItem("displayName");
+
+  db.ref("threads/" + threadId + "/messages").push({
+    uid: currentUser.uid,
+    name: `${name} [${fixedID}]`,
+    message: text,
+    time: new Date().toLocaleString(),
+    reply: replyTo ? {
+      name: replyTo.name,
+      message: replyTo.message
+    } : null
+  });
+
+  document.getElementById("msg").value = "";
+  cancelReply();
+}
+
+// ===== 表示 =====
+db.ref("threads/" + threadId + "/messages").on("child_added", data => {
+  const msg = data.val();
+  const key = data.key;
+
+  const div = document.createElement("div");
+  div.style.padding = "5px";
+  div.style.margin = "3px 0";
+  div.style.borderRadius = "5px";
+
+  if (msg.uid === currentUser?.uid) {
+    div.style.background = "#d0ebff";
+  } else if (msg.uid === "system") {
+    div.style.background = "#ffeebb";
+    div.classList.add("systemMsg");
+    if (!showSystemMsg) div.style.display = "none";
+  } else {
+    div.style.background = "#f0f0f0";
+  }
+
+  const header = document.createElement("div");
+  header.style.display = "flex";
+  header.style.justifyContent = "space-between";
+
+  const info = document.createElement("span");
+  info.innerHTML = `<b>${msg.name}</b> [${msg.time}]`;
+  header.appendChild(info);
+
+  const btnArea = document.createElement("div");
+
+  if (msg.uid !== "system") {
+    const replyBtn = document.createElement("button");
+    replyBtn.innerText = "返信";
+    replyBtn.onclick = () => setReply(msg);
+    btnArea.appendChild(replyBtn);
+  }
+
+  if (msg.uid === currentUser?.uid || isAdmin) {
+    const delBtn = document.createElement("button");
+    delBtn.innerText = "削除";
+    delBtn.onclick = () => {
+      if (confirm("削除しますか？")) {
+        db.ref("threads/" + threadId + "/messages/" + key).remove();
+      }
+    };
+    btnArea.appendChild(delBtn);
+  }
+
+  header.appendChild(btnArea);
+
+  const body = document.createElement("div");
+
+  if (msg.reply) {
+    const r = document.createElement("div");
+    r.style.background = "#ddd";
+    r.style.fontSize = "12px";
+    r.innerText = `↪ ${msg.reply.name}: ${msg.reply.message}`;
+    body.appendChild(r);
+  }
+
+  const parts = msg.message.split(/\s+/);
+
+  parts.forEach(part => {
+    if (isImageURL(part)) {
+      const img = document.createElement("img");
+      img.src = part;
+      img.style.maxWidth = "200px";
+      img.style.display = "block";
+      body.appendChild(img);
+    } else if (getYouTubeEmbedURL(part)) {
+      const iframe = document.createElement("iframe");
+      iframe.src = getYouTubeEmbedURL(part);
+      iframe.width = "300";
+      iframe.height = "170";
+      iframe.style.border = "none";
+      iframe.allowFullscreen = true;
+      iframe.style.display = "block";
+      body.appendChild(iframe);
+    } else {
+      const span = document.createElement("span");
+      span.innerText = part + " ";
+      body.appendChild(span);
+    }
+  });
+
+  div.appendChild(header);
+  div.appendChild(body);
+
+  db.ref("threads/" + threadId + "/messages/" + key).on("value", snap => {
+    if (!snap.exists()) div.remove();
+  });
+
+  document.getElementById("chat").prepend(div);
+});
+
+// ===== オンライン =====
+const onlineDiv = document.getElementById("onlineUsers");
+const onlineCount = document.getElementById("onlineCount");
+
+db.ref("threads/" + threadId + "/online").on("value", snapshot => {
+  onlineDiv.innerHTML = "";
+  let count = 0;
+
+  snapshot.forEach(child => {
+    const user = child.val();
+    count++;
+
+    const div = document.createElement("div");
+    div.innerText = `${user.name} [${user.id}]`;
+    onlineDiv.appendChild(div);
+  });
+
+  onlineCount.innerText = count;
+});
+</script>
+
+</body>
+</html>
