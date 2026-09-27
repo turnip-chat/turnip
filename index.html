@@ -1,84 +1,289 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>ログイン</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Turnip - ログイン</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #f2f4f7;
+        font-family: Arial, sans-serif;
+    }
+
+    .container {
+        width: 380px;
+        max-width: 90%;
+        background: white;
+        padding: 35px;
+        border-radius: 15px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.12);
+        text-align: center;
+    }
+
+    h2 {
+        margin-top: 0;
+        margin-bottom: 25px;
+    }
+
+    button {
+        border: none;
+        border-radius: 8px;
+        padding: 12px 20px;
+        cursor: pointer;
+        font-size: 15px;
+    }
+
+    #googleButton {
+        background: #4285f4;
+        color: white;
+        width: 100%;
+    }
+
+    #googleButton:hover {
+        opacity: 0.9;
+    }
+
+    #nameBox {
+        display: none;
+        margin-top: 25px;
+    }
+
+    #nameInput {
+        width: 100%;
+        padding: 11px;
+        border: 1px solid #ccc;
+        border-radius: 7px;
+        margin-bottom: 10px;
+        font-size: 15px;
+    }
+
+    #saveButton {
+        width: 100%;
+        background: #222;
+        color: white;
+    }
+
+    #status {
+        margin-top: 20px;
+        color: #666;
+        min-height: 20px;
+    }
+</style>
 </head>
+
 <body>
 
-<h2>Googleログイン</h2>
+<div class="container">
 
-<button onclick="googleLogin()">Googleでログイン</button>
+    <h2>Turnip</h2>
 
-<br><br>
+    <button id="googleButton" onclick="googleLogin()">
+        Googleでログイン
+    </button>
 
-<div id="nameBox" style="display:none;">
-  <h3>名前設定</h3>
-  <input id="nameInput" placeholder="表示名を入力">
-  <button onclick="saveName()">決定</button>
+    <div id="nameBox">
+        <h3>表示名を設定</h3>
+
+        <input
+            id="nameInput"
+            type="text"
+            maxlength="30"
+            placeholder="表示名を入力"
+        >
+
+        <button id="saveButton" onclick="saveName()">
+            決定
+        </button>
+    </div>
+
+    <p id="status"></p>
+
 </div>
-
-<p id="status"></p>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
+
+/* =========================================
+   Turnip Firebase設定
+   ========================================= */
+
 const firebaseConfig = {
-  apiKey: "AIzaSyDHLzaNUhtOt4Dztz7bTNclO_FY_Mbwb3g",
-  authDomain: "turnip-1abf0.firebaseapp.com",
-  databaseURL: "https://turnip-1abf0-default-rtdb.firebaseio.com",
-  projectId: "turnip-1abf0",
+    apiKey: "AIzaSyDHLzaNUhtOt4Dztz7bTNclO_FY_Mbwb3g",
+    authDomain: "turnip-1abf0.firebaseapp.com",
+    databaseURL: "https://turnip-1abf0-default-rtdb.firebaseio.com",
+    projectId: "turnip-1abf0"
 };
 
 firebase.initializeApp(firebaseConfig);
+
 const auth = firebase.auth();
 const db = firebase.database();
 
 let currentUser = null;
+let checkingAuth = true;
 
-// Googleログイン
+
+/* =========================================
+   Googleログイン
+   ========================================= */
+
 function googleLogin() {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).catch(e => alert(e.message));
-}
 
-// 名前保存
-function saveName() {
-  const name = document.getElementById("nameInput").value;
-  if (!name) return alert("名前を入力してください");
+    const provider = new firebase.auth.GoogleAuthProvider();
 
-  db.ref("users/" + currentUser.uid).update({
-    displayName: name
-  });
-
-  localStorage.setItem("displayName", name);
-
-  window.location.href = "threads.html";
-}
-
-// 状態監視
-auth.onAuthStateChanged(user => {
-  if (user) {
-    currentUser = user;
-
-    db.ref("users/" + user.uid + "/displayName").once("value", snapshot => {
-      const name = snapshot.val();
-
-      if (name) {
-        localStorage.setItem("displayName", name);
-        window.location.href = "threads.html";
-      } else {
-        document.getElementById("nameBox").style.display = "block";
-        document.getElementById("status").innerText = "名前を設定してください";
-      }
+    provider.setCustomParameters({
+        prompt: "select_account"
     });
 
-  } else {
-    document.getElementById("status").innerText = "未ログイン";
-  }
+    document.getElementById("status").innerText =
+        "Googleログイン中...";
+
+    auth.signInWithPopup(provider)
+        .then(result => {
+
+            currentUser = result.user;
+
+            document.getElementById("status").innerText =
+                "ログインしました";
+
+        })
+        .catch(error => {
+
+            console.error(error);
+
+            document.getElementById("status").innerText =
+                "ログインに失敗しました";
+
+            alert(error.message);
+        });
+}
+
+
+/* =========================================
+   表示名保存
+   ========================================= */
+
+function saveName() {
+
+    if (!currentUser) {
+        alert("ログインしてください");
+        return;
+    }
+
+    const input = document.getElementById("nameInput");
+    const name = input.value.trim();
+
+    if (!name) {
+        alert("表示名を入力してください");
+        return;
+    }
+
+    if (name.length > 30) {
+        alert("表示名は30文字以内にしてください");
+        return;
+    }
+
+    document.getElementById("status").innerText =
+        "保存中...";
+
+    db.ref("users/" + currentUser.uid).update({
+        displayName: name
+    })
+    .then(() => {
+
+        localStorage.setItem("displayName", name);
+
+        window.location.replace("threads.html");
+
+    })
+    .catch(error => {
+
+        console.error(error);
+
+        document.getElementById("status").innerText =
+            "保存に失敗しました";
+
+        alert(error.message);
+    });
+}
+
+
+/* =========================================
+   ログイン状態確認
+   ========================================= */
+
+auth.onAuthStateChanged(async user => {
+
+    currentUser = user;
+    checkingAuth = false;
+
+    const nameBox = document.getElementById("nameBox");
+    const googleButton = document.getElementById("googleButton");
+    const status = document.getElementById("status");
+
+    if (!user) {
+
+        nameBox.style.display = "none";
+        googleButton.style.display = "block";
+
+        status.innerText = "未ログイン";
+
+        return;
+    }
+
+    googleButton.style.display = "none";
+
+    try {
+
+        const snapshot = await db
+            .ref("users/" + user.uid + "/displayName")
+            .once("value");
+
+        const name = snapshot.val();
+
+        if (name) {
+
+            localStorage.setItem("displayName", name);
+
+            status.innerText = "ログイン済み";
+
+            /*
+             * replaceを使うことで、
+             * 戻るボタンでログインページに戻りにくくする
+             */
+            window.location.replace("threads.html");
+
+        } else {
+
+            nameBox.style.display = "block";
+
+            status.innerText =
+                "表示名を設定してください";
+
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+        status.innerText =
+            "ユーザー情報の取得に失敗しました";
+    }
 });
+
 </script>
 
 </body>
