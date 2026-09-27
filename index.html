@@ -6,78 +6,63 @@
 <title>Turnip - ログイン</title>
 
 <style>
-    * {
-        box-sizing: border-box;
-    }
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f2f4f7;
+    font-family: Arial, sans-serif;
+}
 
-    body {
-        margin: 0;
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: #f2f4f7;
-        font-family: Arial, sans-serif;
-    }
+.container {
+    width: 380px;
+    max-width: 90%;
+    padding: 35px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 25px rgba(0,0,0,.12);
+    text-align: center;
+}
 
-    .container {
-        width: 380px;
-        max-width: 90%;
-        background: white;
-        padding: 35px;
-        border-radius: 15px;
-        box-shadow: 0 5px 25px rgba(0,0,0,0.12);
-        text-align: center;
-    }
+button {
+    border: 0;
+    border-radius: 8px;
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 15px;
+}
 
-    h2 {
-        margin-top: 0;
-        margin-bottom: 25px;
-    }
+#googleButton {
+    width: 100%;
+    background: #4285f4;
+    color: white;
+}
 
-    button {
-        border: none;
-        border-radius: 8px;
-        padding: 12px 20px;
-        cursor: pointer;
-        font-size: 15px;
-    }
+#nameBox {
+    display: none;
+    margin-top: 25px;
+}
 
-    #googleButton {
-        background: #4285f4;
-        color: white;
-        width: 100%;
-    }
+#nameInput {
+    width: 100%;
+    padding: 11px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 7px;
+    box-sizing: border-box;
+}
 
-    #googleButton:hover {
-        opacity: 0.9;
-    }
+#saveButton {
+    width: 100%;
+    background: #222;
+    color: white;
+}
 
-    #nameBox {
-        display: none;
-        margin-top: 25px;
-    }
-
-    #nameInput {
-        width: 100%;
-        padding: 11px;
-        border: 1px solid #ccc;
-        border-radius: 7px;
-        margin-bottom: 10px;
-        font-size: 15px;
-    }
-
-    #saveButton {
-        width: 100%;
-        background: #222;
-        color: white;
-    }
-
-    #status {
-        margin-top: 20px;
-        color: #666;
-        min-height: 20px;
-    }
+#status {
+    color: #666;
+}
 </style>
 </head>
 
@@ -92,11 +77,11 @@
     </button>
 
     <div id="nameBox">
+
         <h3>表示名を設定</h3>
 
         <input
             id="nameInput"
-            type="text"
             maxlength="30"
             placeholder="表示名を入力"
         >
@@ -104,21 +89,19 @@
         <button id="saveButton" onclick="saveName()">
             決定
         </button>
+
     </div>
 
-    <p id="status"></p>
+    <p id="status">認証確認中...</p>
 
 </div>
+
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
-
-/* =========================================
-   Turnip Firebase設定
-   ========================================= */
 
 const firebaseConfig = {
     apiKey: "AIzaSyDHLzaNUhtOt4Dztz7bTNclO_FY_Mbwb3g",
@@ -133,156 +116,226 @@ const auth = firebase.auth();
 const db = firebase.database();
 
 let currentUser = null;
-let checkingAuth = true;
 
 
-/* =========================================
+/* ================================
+   Firebase AuthをLOCAL保存に固定
+================================ */
+
+auth.setPersistence(
+    firebase.auth.Auth.Persistence.LOCAL
+)
+.then(() => {
+
+    auth.onAuthStateChanged(async user => {
+
+        console.log("INDEX AUTH:", user);
+
+        currentUser = user;
+
+        const status =
+            document.getElementById("status");
+
+        const nameBox =
+            document.getElementById("nameBox");
+
+        const googleButton =
+            document.getElementById("googleButton");
+
+
+        /* 未ログイン */
+
+        if (!user) {
+
+            googleButton.style.display = "block";
+            nameBox.style.display = "none";
+
+            status.innerText =
+                "未ログイン";
+
+            return;
+        }
+
+
+        /* ログイン済み */
+
+        googleButton.style.display = "none";
+
+
+        try {
+
+            const snapshot =
+                await db.ref(
+                    "users/" +
+                    user.uid +
+                    "/displayName"
+                ).once("value");
+
+
+            const name =
+                snapshot.val();
+
+
+            if (name) {
+
+                localStorage.setItem(
+                    "displayName",
+                    name
+                );
+
+                status.innerText =
+                    "ログイン済み → スレッド一覧へ";
+
+
+                console.log(
+                    "INDEX → THREADS",
+                    user.uid
+                );
+
+
+                window.location.replace(
+                    "threads.html"
+                );
+
+            } else {
+
+                nameBox.style.display =
+                    "block";
+
+                status.innerText =
+                    "表示名を設定してください";
+
+            }
+
+        } catch (error) {
+
+            console.error(error);
+
+            status.innerText =
+                "エラー: " +
+                error.message;
+        }
+
+    });
+
+})
+.catch(error => {
+
+    console.error(error);
+
+    document.getElementById("status")
+        .innerText =
+        "Firebase認証初期化エラー: " +
+        error.message;
+
+});
+
+
+/* ================================
    Googleログイン
-   ========================================= */
+================================ */
 
 function googleLogin() {
 
-    const provider = new firebase.auth.GoogleAuthProvider();
+    const provider =
+        new firebase.auth.GoogleAuthProvider();
 
     provider.setCustomParameters({
         prompt: "select_account"
     });
 
-    document.getElementById("status").innerText =
+
+    document.getElementById("status")
+        .innerText =
         "Googleログイン中...";
+
 
     auth.signInWithPopup(provider)
         .then(result => {
 
-            currentUser = result.user;
-
-            document.getElementById("status").innerText =
-                "ログインしました";
+            console.log(
+                "LOGIN SUCCESS:",
+                result.user.uid
+            );
 
         })
         .catch(error => {
 
             console.error(error);
 
-            document.getElementById("status").innerText =
-                "ログインに失敗しました";
+            document.getElementById("status")
+                .innerText =
+                "ログイン失敗";
 
             alert(error.message);
+
         });
+
 }
 
 
-/* =========================================
-   表示名保存
-   ========================================= */
+/* ================================
+   名前保存
+================================ */
 
 function saveName() {
 
     if (!currentUser) {
+
         alert("ログインしてください");
+
         return;
     }
 
-    const input = document.getElementById("nameInput");
-    const name = input.value.trim();
+
+    const name =
+        document.getElementById(
+            "nameInput"
+        ).value.trim();
+
 
     if (!name) {
-        alert("表示名を入力してください");
+
+        alert("名前を入力してください");
+
         return;
     }
 
-    if (name.length > 30) {
-        alert("表示名は30文字以内にしてください");
-        return;
-    }
 
-    document.getElementById("status").innerText =
-        "保存中...";
+    db.ref(
+        "users/" +
+        currentUser.uid
+    )
+    .update({
 
-    db.ref("users/" + currentUser.uid).update({
         displayName: name
+
     })
     .then(() => {
 
-        localStorage.setItem("displayName", name);
+        localStorage.setItem(
+            "displayName",
+            name
+        );
 
-        window.location.replace("threads.html");
+
+        window.location.replace(
+            "threads.html"
+        );
 
     })
     .catch(error => {
 
         console.error(error);
 
-        document.getElementById("status").innerText =
-            "保存に失敗しました";
+        alert(
+            "保存失敗: " +
+            error.message
+        );
 
-        alert(error.message);
     });
+
 }
-
-
-/* =========================================
-   ログイン状態確認
-   ========================================= */
-
-auth.onAuthStateChanged(async user => {
-
-    currentUser = user;
-    checkingAuth = false;
-
-    const nameBox = document.getElementById("nameBox");
-    const googleButton = document.getElementById("googleButton");
-    const status = document.getElementById("status");
-
-    if (!user) {
-
-        nameBox.style.display = "none";
-        googleButton.style.display = "block";
-
-        status.innerText = "未ログイン";
-
-        return;
-    }
-
-    googleButton.style.display = "none";
-
-    try {
-
-        const snapshot = await db
-            .ref("users/" + user.uid + "/displayName")
-            .once("value");
-
-        const name = snapshot.val();
-
-        if (name) {
-
-            localStorage.setItem("displayName", name);
-
-            status.innerText = "ログイン済み";
-
-            /*
-             * replaceを使うことで、
-             * 戻るボタンでログインページに戻りにくくする
-             */
-            window.location.replace("threads.html");
-
-        } else {
-
-            nameBox.style.display = "block";
-
-            status.innerText =
-                "表示名を設定してください";
-
-        }
-
-    } catch (error) {
-
-        console.error(error);
-
-        status.innerText =
-            "ユーザー情報の取得に失敗しました";
-    }
-});
 
 </script>
 
